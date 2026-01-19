@@ -130,9 +130,9 @@ class LLMClient:
         api_key = self.config.get_api_key()
         
         # Check for LLM proxy URL (used in evaluation)
-        base_url = os.environ.get("LLM_PROXY_URL")
-        if not base_url:
-            base_url = self.config.get_base_url()
+        # base_url = os.environ.get("LLM_PROXY_URL")
+        # if not base_url:
+        base_url = self.config.get_base_url()
         
         self._base_url = base_url
         
@@ -240,12 +240,17 @@ class LLMClient:
                 if call.get("type") == "function":
                     response.function_calls.append(FunctionCall.from_openai(call))
         
-        # Estimate cost
-        response.cost = self._estimate_cost(
-            response.model,
-            response.input_tokens,
-            response.output_tokens
-        )
+        # Get actual cost from OpenRouter (when "usage": {"include": True} is set)
+        # OpenRouter returns cost in credits (USD) in the usage object
+        if "cost" in usage:
+            response.cost = float(usage["cost"])
+        else:
+            # Fallback to estimation if cost not provided
+            response.cost = self._estimate_cost(
+                response.model,
+                response.input_tokens,
+                response.output_tokens
+            )
         
         return response
     
@@ -278,6 +283,8 @@ class LLMClient:
             "model": model_name,
             "messages": messages,
             "max_tokens": max_tokens or self.config.max_tokens,
+            # Request usage info including actual cost from OpenRouter
+            "usage": {"include": True},
         }
         
         # Only add temperature if the model supports it

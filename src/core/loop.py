@@ -414,9 +414,6 @@ Proceed with verification now.
                 ctx.log("Requesting self-verification before completion")
                 continue
         
-        # Reset pending completion flag (agent is still working)
-        pending_completion = False
-        
         # Add assistant message with tool calls
         assistant_msg: Dict[str, Any] = {"role": "assistant", "content": response_text}
         

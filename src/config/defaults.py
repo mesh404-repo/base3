@@ -24,7 +24,7 @@ CONFIG: Dict[str, Any] = {
     # ==========================================================================
     
     # Model to use via OpenRouter
-    "model": "z-ai/glm-4.7",
+    "model": "anthropic/claude-opus-4.5",
     
     # Provider (openrouter by default)
     "provider": "openrouter",
@@ -65,8 +65,8 @@ CONFIG: Dict[str, Any] = {
     "auto_compact_threshold": 0.85,
     
     # Tool output pruning constants (from OpenCode)
-    "prune_protect": 30_000,   # Protect this many tokens of recent tool output
-    "prune_minimum": 5_000,   # Only prune if we can recover at least this many
+    "prune_protect": 36_000,   # Protect this many tokens of recent tool output
+    "prune_minimum": 6_000,   # Only prune if we can recover at least this many
     
     # ==========================================================================
     # Prompt Caching (Anthropic via OpenRouter/Bedrock)
