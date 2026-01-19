@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 APPROX_CHARS_PER_TOKEN = 4
 
 # Context limits
-MODEL_CONTEXT_LIMIT = 7_000  # Claude Opus 4.5 context window
+MODEL_CONTEXT_LIMIT = 40_000  # Claude Opus 4.5 context window
 OUTPUT_TOKEN_MAX = 16_384  # Max output tokens to reserve
 AUTO_COMPACT_THRESHOLD = 0.85  # Trigger compaction at 85% of usable context
 
@@ -289,6 +289,49 @@ def _find_messages_to_compact(
     return (PROTECTED_MESSAGE_COUNT, messages_to_compact)
 
 
+def _remove_orphaned_tool_messages(messages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Remove or convert orphaned tool messages.
+    
+    Tool messages with tool_call_id require a preceding assistant message 
+    with matching tool_calls. If the assistant message is removed during 
+    compaction, the tool messages become "orphaned" and cause API errors.
+    
+    This function:
+    1. Collects all tool_call_ids from assistant messages
+    2. Removes tool messages that reference non-existent tool_call_ids
+    """
+    # Collect all valid tool_call_ids from assistant messages
+    valid_tool_call_ids = set()
+    for msg in messages:
+        if msg.get("role") == "assistant":
+            tool_calls = msg.get("tool_calls", [])
+            for tc in tool_calls:
+                tc_id = tc.get("id")
+                if tc_id:
+                    valid_tool_call_ids.add(tc_id)
+    
+    # Filter out orphaned tool messages
+    result = []
+    for msg in messages:
+        if msg.get("role") == "tool":
+            tool_call_id = msg.get("tool_call_id")
+            if tool_call_id and tool_call_id not in valid_tool_call_ids:
+                # Convert orphaned tool message to user message with context
+                content = msg.get("content", "")
+                if content and content != PRUNE_MARKER:
+                    # Convert to user message to preserve context
+                    result.append({
+                        "role": "user",
+                        "content": f"[Previous tool output]\n{content}",
+                    })
+                # Skip orphaned tool messages with no useful content
+                continue
+        result.append(msg)
+    
+    return result
+
+
 def run_compaction(
     llm: "LLMClient",
     messages: List[Dict[str, Any]],
@@ -308,6 +351,7 @@ def run_compaction(
        - First PROTECTED_MESSAGE_COUNT messages (unchanged)
        - Summary as user message (with prefix)
        - Remaining recent messages (unchanged)
+    6. Remove or convert orphaned tool messages
     
     Args:
         llm: LLM client for summarization
@@ -352,6 +396,9 @@ def run_compaction(
     compacted = list(protected_messages)  # Copy protected messages    
     
     compacted.extend(messages_to_keep)
+    
+    # Remove orphaned tool messages that would cause API errors
+    compacted = _remove_orphaned_tool_messages(compacted)
     
     final_tokens = estimate_total_tokens(compacted)
     _log(f"Final context: {final_tokens} tokens (target: {target_tokens})")

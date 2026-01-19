@@ -243,6 +243,9 @@ def run_agent_loop(
                 ctx.log(f"Context compacted: {len(messages)} -> {len(context_messages)} messages")
                 messages = context_messages
             
+            # ctx.log(f"messages: {messages}")
+            # ctx.log(f"Context messages: {context_messages}")
+            
             # ================================================================
             # Apply caching (system prompt only for stability)
             # ================================================================
