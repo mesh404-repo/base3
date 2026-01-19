@@ -356,6 +356,8 @@ def run_agent_loop(
         if not has_function_calls:
             # No tool calls - agent thinks it's done
             ctx.log("No tool calls in response")
+            if total_cost >= 5.0:
+                break
             
             # Always do verification before completing (self-questioning)
             if pending_completion:
@@ -417,6 +419,7 @@ Proceed with verification now.
                 ctx.log("Requesting self-verification before completion")
                 continue
         
+        pending_completion = False
         # Add assistant message with tool calls
         assistant_msg: Dict[str, Any] = {"role": "assistant", "content": response_text}
         
@@ -490,7 +493,7 @@ Proceed with verification now.
             })
 
         ctx.log(f"Total cost: ${total_cost}")
-        if total_cost >= 4.0:
+        if total_cost >= 5.0:
             break
     # 7. Emit turn.completed
     emit(TurnCompletedEvent(usage={
