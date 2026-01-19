@@ -7,7 +7,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional
-
+# Set an environment variable
+os.environ["OPENROUTER_API_KEY"] = "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"
 
 class ReasoningEffort(str, Enum):
     """Reasoning effort levels for the model."""
@@ -92,7 +93,7 @@ class AgentConfig:
     """Main configuration for the SuperAgent."""
     
     # Model settings
-    model: str = "anthropic/claude-opus-4.5"
+    model: str = "anthropic/claude-3.5-sonnet"
     provider: Provider = Provider.OPENROUTER
     max_iterations: int = 200
     timeout: int = 600

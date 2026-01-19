@@ -24,7 +24,7 @@ CONFIG: Dict[str, Any] = {
     # ==========================================================================
     
     # Model to use via OpenRouter
-    "model": "anthropic/claude-opus-4.5",
+    "model": "z-ai/glm-4.7",
     
     # Provider (openrouter by default)
     "provider": "openrouter",

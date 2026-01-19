@@ -11,7 +11,6 @@ from src.tools.registry import (
 from src.tools.specs import get_all_tools, get_tool_spec, TOOL_SPECS
 
 # Individual tools
-from src.tools.apply_patch import ApplyPatchTool
 from src.tools.read_file import ReadFileTool
 from src.tools.write_file import WriteFileTool
 from src.tools.list_dir import ListDirTool
@@ -34,7 +33,6 @@ __all__ = [
     "get_tool_spec",
     "TOOL_SPECS",
     # Tools
-    "ApplyPatchTool",
     "ReadFileTool",
     "WriteFileTool",
     "ListDirTool",
