@@ -8,7 +8,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 # Set an environment variable
-os.environ["OPENROUTER_API_KEY"] = "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"
+os.environ["OPENROUTER_API_KEY"] = "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"
 
 class ReasoningEffort(str, Enum):
     """Reasoning effort levels for the model."""

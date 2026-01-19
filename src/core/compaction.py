@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 APPROX_CHARS_PER_TOKEN = 4
 
 # Context limits
-MODEL_CONTEXT_LIMIT = 5_000  # Claude Opus 4.5 context window
+MODEL_CONTEXT_LIMIT = 7_000  # Claude Opus 4.5 context window
 OUTPUT_TOKEN_MAX = 16_384  # Max output tokens to reserve
 AUTO_COMPACT_THRESHOLD = 0.85  # Trigger compaction at 85% of usable context
 
